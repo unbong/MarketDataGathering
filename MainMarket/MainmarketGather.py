@@ -32,7 +32,6 @@ def func_calculateAveRPS(stocks, isALL=False):
     sumOfRps=0.0
     if not isALL:
         for stock in stocks.find({"iscalculated":"Y"}):
-            #sumOfRps+= str(stock["stockRPS"]).atol()
             sumOfRps+= float(stock["stockRPS"])
         averageRPS=sumOfRps/stocks.find({"iscalculated":"Y"}).count()
     else:
@@ -47,9 +46,7 @@ def func_AddMarket(stockList, marketName):
             stockInfo={}
             stockInfo['DateTime'] = datetime.datetime.utcnow()
             address=stock.contents[1]
-            # time.sleep(random.uniform(1,5))
             href="https://hk.investing.com" + address.a.get('href')
-            # subrequest=requests.get(href,verify=False,headers=header_info)
             # 各个股票的子地址
             subBsrs=func_httprequest(href)
             # 市盈率 ID 每股收益
@@ -62,7 +59,6 @@ def func_AddMarket(stockList, marketName):
             else:
                 stockInfo['stockId'] = tmpstock[2].contents[3].get("title")
             stockName=subBsrs.select("#leftColumn > div.instrumentHead > h1")
-            # from IPython.core.debugger import Pdb; Pdb().set_trace()
             # 名称 RPS EPS
             stockInfo['stockName'] = stockName[0].text
             stockInfo['stockRPS'] = stockRps[10].contents[1].text
@@ -78,26 +74,20 @@ def func_AddMarket(stockList, marketName):
                 print(stockInfo['stockName'])
                 stockInfo['iscalculated'] = "N"
             stock_id=stocks.find({'stockId':stockInfo['stockId']}).sort("DateTime", pymongo.DESCENDING)
-            #if not stock_id['stockId'] == "" :
-                # continue
 
             if stock_id.count() == 0:
                 stock_id=stocks.update({'stockId':stockInfo['stockId'], 'DateTime': datetime.datetime.utcnow()}, {'$set':stockInfo},upsert=True)
             else:
-                # from IPython.core.debugger import Pdb; Pdb().set_trace()
                 tmpDate1=stock_id[0]["DateTime"]
                 tmpDate2=datetime.datetime.utcnow()
                 if (tmpDate1.year == tmpDate2.year):
                     if (tmpDate2.month - tmpDate1.month) >=0 :
-                        #from IPython.core.debugger import Pdb; Pdb().set_trace()
                         if(tmpDate2.day != tmpDate1.day):
                             stock_id=stocks.update({'stockId':stockInfo['stockId'], 'DateTime': datetime.datetime.utcnow()}, {'$set':stockInfo},upsert=True)
                 else:
                     stock_id=stocks.update({'stockId':stockInfo['stockId'], 'DateTime': datetime.datetime.utcnow()}, {'$set':stockInfo},upsert=True)
-            # stock_id=stocks.update({'stockId':stockInfo['stockId']}, {'$set':stockInfo},upsert=True)
             print(stockInfo["marketName"]+" - "+stockInfo["stockName"]+" Index: " + str(index))
             index = index +1
-            # from IPython.core.debugger import Pdb; Pdb().set_trace()
         except:
             print("Unexpected error:")
     return True

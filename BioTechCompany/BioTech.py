@@ -36,12 +36,12 @@ def func_httprequest_bs4(url, encoding="utf-8"):
     result = BeautifulSoup(requestres.text, 'lxml')
     return result
 
-def func_bs4_select(bs_object,selector,result_item,index = 0):
+def func_bs4_select(bs_object,selector,result_item,key_name,index = 0):
     result = False
     selected_item = bs_object.select('#name')
     if len(selected_item)==0 and len(selected_item) < index :
         return result
-    result_item = selected_item[0]
+    result_item[key_name] = selected_item[0].text
     result = True
     return result
 
@@ -74,7 +74,7 @@ for data in result.json()['Datas']['FundList']:
         stock_data_db['date'] = today
 
         #stock_data_db['stock_name'] = stock_url_result.select('#name')[0].text
-        func_result = func_bs4_select(stock_url_result,'#name', stock_data_db['stock_name'], 0)
+        func_result = func_bs4_select(stock_url_result,'#name', stock_data_db,'stock_name', 0)
         if (func_result == False):
             print('Error')
 
